@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <iostream>
 
+// Chuyển ảnh thành ảnh nhị phân ngược
 cv::Mat preprocess(const cv::Mat& image) {
     cv::Mat gray, binary;
     cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
@@ -10,15 +11,18 @@ cv::Mat preprocess(const cv::Mat& image) {
     return binary;
 }
 
+// Tìm khu vực chứa văn bản trong ảnh nhị phân
 std::vector<cv::Rect> find_text_regions(const cv::Mat& binary_image) {
     cv::Mat kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(15, 5));
     cv::Mat dilated;
     cv::dilate(binary_image, dilated, kernel, cv::Point(-1, -1), 2);
 
-    std::vector<std::vector<cv::Point>> contours;
+// Tìm các đường viền (contours) trong ảnh đã dãn
+std::vector<std::vector<cv::Point>> contours;
     cv::findContours(dilated, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
-
-    std::vector<cv::Rect> regions;
+    
+// Mảng lưu trữ các khu vực chứa văn bản
+std::vector<cv::Rect> regions;
     for (const auto& contour : contours) {
         cv::Rect rect = cv::boundingRect(contour);
         int x = rect.x, y = rect.y, w = rect.width, h = rect.height;
@@ -27,6 +31,7 @@ std::vector<cv::Rect> find_text_regions(const cv::Mat& binary_image) {
         }
     }
 
+    // Sắp xếp các khu vực theo vị trí y, nếu y giống nhau thì theo x
     std::sort(regions.begin(), regions.end(), [](const cv::Rect& a, const cv::Rect& b) {
         return (a.y < b.y) || (a.y == b.y && a.x < b.x);
         });
@@ -34,6 +39,7 @@ std::vector<cv::Rect> find_text_regions(const cv::Mat& binary_image) {
     return regions;
 }
 
+// Hàm cắt và hiển thị các khu vực chứa văn bản
 void crop_and_display(const cv::Mat& binary_image, const std::vector<cv::Rect>& regions, int target_segments = 5) {
     int count = 0;
     for (const auto& rect : regions) {
