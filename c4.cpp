@@ -4,48 +4,43 @@
 #include <fstream>
 #include <string>
 
+using namespace cv;
+using namespace std;
+using namespace tesseract;
+
 int main() {
-    // ��?ng d?n ?nh t?i l�n
-    std::string image_path = "D:/Download/binary_image.png";
-    std::string output_text_path = "D:/VSC/ticket_full_text.txt";
+    // Đường dẫn ảnh và tệp văn bản
+    string image_path = "D:/Download/binary_image.png";
+    string output_text_path = "D:/VSC/ticket_full_text.txt";
 
-    // �?c ?nh
-    cv::Mat image = cv::imread(image_path);
+    // Đọc ảnh và chuyển sang ảnh xám
+    Mat image = imread(image_path, IMREAD_GRAYSCALE);
 
-    // Chuy?n sang m?c x�m
-    cv::Mat gray;
-    cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
+    // Tăng cường ảnh (chuyển sang ảnh nhị phân và tăng độ tương phản)
+    Mat binary;
+    threshold(image, binary, 0, 255, THRESH_BINARY | THRESH_OTSU);
 
-    // T�ng c�?ng ?nh (binarize v� t�ng �? t��ng ph?n)
-    cv::Mat binary;
-    cv::threshold(gray, binary, 0, 255, cv::THRESH_BINARY | cv::THRESH_OTSU);
-
-    // Reload the binary image provided by the user
-    std::string binary_image_path_updated = "D:/Download/binary_image.png";
-
-    // Load the binary image
-    cv::Mat binary_image_updated = cv::imread(binary_image_path_updated, cv::IMREAD_GRAYSCALE);
-
-    // Perform OCR on the updated binary image with improved configurations
-    tesseract::TessBaseAPI* ocr = new tesseract::TessBaseAPI();
-    ocr->Init(NULL, "por", tesseract::OEM_LSTM_ONLY);
-    ocr->SetPageSegMode(tesseract::PSM_SINGLE_BLOCK);
-    ocr->SetImage(binary_image_updated.data, binary_image_updated.cols, binary_image_updated.rows, 1, binary_image_updated.step);
-
-    std::string full_text_updated = std::string(ocr->GetUTF8Text());
-
-    // Save the updated full text to a file
-    std::string updated_output_text_path = "D:/VSC/ticket_full_text.txt";
-    std::ofstream outFile(updated_output_text_path);
-    if (outFile.is_open()) {
-        outFile << full_text_updated;
-        outFile.close();
+    // Thực hiện OCR trên ảnh nhị phân với cấu hình cải tiến
+    TessBaseAPI ocr;
+    if (ocr.Init(NULL, "por", OEM_LSTM_ONLY) != 0) {
+        cerr << "Không thể khởi tạo Tesseract OCR!" << endl;
+        return 1;
     }
 
-    // Clean up
-    ocr->End();
-    delete ocr;
+    ocr.SetPageSegMode(PSM_SINGLE_BLOCK);
+    ocr.SetImage(binary.data, binary.cols, binary.rows, 1, binary.step);
+
+    // Nhận diện văn bản
+    string full_text = ocr.GetUTF8Text();
+
+    // Lưu văn bản nhận dạng vào tệp
+    ofstream outFile(output_text_path);
+    if (outFile.is_open()) {
+        outFile << full_text;
+    } else {
+        cerr << "Không thể mở tệp để ghi!" << endl;
+        return 1;
+    }
 
     return 0;
 }
-
