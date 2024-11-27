@@ -30,7 +30,7 @@ vector<RotatedRect> find_text_areas(const Mat& input_image) {
     vector<vector<Point>> contours;
     findContours(dilated, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
 
-    std::vector<RotatedRect> areas;
+    vector<RotatedRect> areas;
     for (const auto& contour : contours) {
         RotatedRect box = minAreaRect(contour);
 
@@ -72,7 +72,7 @@ Mat deskew_and_crop(const Mat& input_image, const RotatedRect& box) {
 string identify_text(const Mat& input_image, const string& language = "eng") {
     TessBaseAPI tess;
     if (tess.Init(NULL, language.c_str(), OEM_LSTM_ONLY)) {
-        cerr << "Could not initialize tesseract." << std::endl;
+        cerr << "Could not initialize tesseract." << endl;
         return "";
     }
 
@@ -92,7 +92,7 @@ int main() {
 
     ofstream file("ticket_full_text.txt");
     if (!file.is_open()) {
-        cerr << "Could not open file for writing." << std::endl;
+        cerr << "Could not open file for writing." << endl;
         return 1;
     }
 
