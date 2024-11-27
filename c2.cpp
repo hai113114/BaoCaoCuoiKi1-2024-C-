@@ -13,7 +13,7 @@ Mat preprocess(const Mat& image) {
     return binary;
 }
 
-vector<cRect> find_text_regions(const Mat& binary_image) {
+vector<Rect> find_text_regions(const Mat& binary_image) {
     Mat kernel = getStructuringElement(MORPH_RECT, Size(15, 5));
     Mat dilated;
     dilate(binary_image, dilated, kernel, Point(-1, -1), 2);
