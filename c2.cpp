@@ -63,7 +63,7 @@ void crop_and_display(const Mat& binary_image, const vector<Rect>& regions, int 
 int main() {
     Mat image = imread("D:/Download/Chapter_10/ticket.png");
     if (image.empty()) {
-        cout << "Không tìm thấy ảnh, hãy kiểm tra lại đường dẫn." << std::endl;
+        cout << "Không tìm thấy ảnh, hãy kiểm tra lại đường dẫn." << endl;
         return -1;
     }
 
