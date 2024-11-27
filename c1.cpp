@@ -5,7 +5,6 @@
 using namespace std;
 using namespace cv;
 
-// Hàm chuyển ảnh sang trắng đen
 Mat binarize(Mat input) {
     Mat gray, binaryImage;
     cvtColor(input, gray, COLOR_BGR2GRAY);
@@ -13,7 +12,6 @@ Mat binarize(Mat input) {
     return binaryImage;
 }
 
-// Hàm tìm các vùng văn bản
 vector<RotatedRect> findTextAreas(Mat input) {
     Mat dilated;
     auto kernel = getStructuringElement(MORPH_CROSS, Size(3, 3));
@@ -34,7 +32,6 @@ vector<RotatedRect> findTextAreas(Mat input) {
     return areas;
 }
 
-// Hàm căn chỉnh và cắt vùng văn bản
 Mat deskewAndCrop(Mat input, const RotatedRect& box) {
     double angle = box.angle;
     auto size = box.size;
@@ -54,7 +51,6 @@ Mat deskewAndCrop(Mat input, const RotatedRect& box) {
 }
 
 int main() {
-    // Đọc ảnh
     Mat input = imread("D:/Download/Chapter_10/ticket.png");
     if (input.empty()) {
         cout << "Không tìm thấy file ảnh!" << endl;
@@ -62,16 +58,13 @@ int main() {
     }
     cout << "Ảnh đã tải thành công!" << endl;
 
-    // Chuyển trắng đen
     Mat binaryImage = binarize(input);
     imshow("Binary Image", binaryImage); // Kiểm tra ảnh trắng đen
     waitKey(0);
 
-    // Tìm các vùng văn bản
     vector<RotatedRect> textAreas = findTextAreas(binaryImage);
     cout << "Tìm thấy " << textAreas.size() << " vùng văn bản." << endl;
 
-    // Xử lý từng vùng văn bản
     for (size_t i = 0; i < textAreas.size(); ++i) {
         Mat cropped = deskewAndCrop(binaryImage, textAreas[i]);
         imshow("Cropped Region " + to_string(i + 1), cropped);
